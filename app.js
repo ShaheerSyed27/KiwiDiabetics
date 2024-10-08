@@ -171,6 +171,12 @@ function createChart(dates, insulinDoses) {
         });
     }
 }
+// Expose functions to the global scope
+window.setInsulinDose = setInsulinDose;
+window.setExerciseDuration = setExerciseDuration;
+window.setupDataSaving = setupDataSaving;
+
+
 
 // Initialize functionality based on the page
 document.addEventListener('DOMContentLoaded', function () {
