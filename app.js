@@ -139,11 +139,21 @@ function updateInsulinOnBoard(savedData) {
     }
 }
 
+// Global variable to keep track of the chart instance
+let insulinChart = null;
+
 // Create a chart of insulin doses over time using Chart.js
 function createChart(dates, insulinDoses) {
     const ctx = document.getElementById('historyChart')?.getContext('2d');
+    
     if (ctx) {
-        new Chart(ctx, {
+        // Destroy the existing chart if it already exists
+        if (insulinChart) {
+            insulinChart.destroy();
+        }
+
+        // Create a new chart
+        insulinChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: dates,
@@ -171,12 +181,11 @@ function createChart(dates, insulinDoses) {
         });
     }
 }
+
 // Expose functions to the global scope
 window.setInsulinDose = setInsulinDose;
 window.setExerciseDuration = setExerciseDuration;
 window.setupDataSaving = setupDataSaving;
-
-
 
 // Initialize functionality based on the page
 document.addEventListener('DOMContentLoaded', function () {
