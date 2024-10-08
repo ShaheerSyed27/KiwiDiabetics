@@ -95,6 +95,11 @@ function clearForm() {
 async function loadHistory() {
     const userId = auth.currentUser ? auth.currentUser.uid : null;
 
+    if (!userId) {
+        console.error("User not authenticated.");
+        return;
+    }
+
     const q = db.collection('diabetesData')
                 .where('userId', '==', userId)
                 .orderBy('timestamp', 'desc');
@@ -104,6 +109,13 @@ async function loadHistory() {
         querySnapshot.forEach((doc) => {
             savedData.push({ id: doc.id, ...doc.data() });
         });
+
+        if (savedData.length === 0) {
+            console.warn("No history data available.");
+            document.getElementById('historyContainer').innerHTML = '<p>No data available.</p>';
+            return;
+        }
+
         displayHistory(savedData);
     } catch (error) {
         console.error("Error getting documents: ", error);
@@ -144,6 +156,11 @@ let insulinChart = null;
 
 // Create a chart of insulin doses over time using Chart.js
 function createChart(dates, insulinDoses) {
+    if (dates.length === 0 || insulinDoses.length === 0) {
+        console.warn("No data available to create the chart.");
+        return;
+    }
+
     const ctx = document.getElementById('historyChart')?.getContext('2d');
     
     if (ctx) {
