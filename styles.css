@@ -92,14 +92,6 @@ button.cancel-button {
     margin-right: 10px;
 }
 
-button.delete-button {
-    background-color: #dc3545;
-}
-
-button.delete-button:hover {
-    background-color: #c82333;
-}
-
 button.edit-button {
     background-color: #ffc107;
 }
@@ -108,18 +100,30 @@ button.edit-button:hover {
     background-color: #e0a800;
 }
 
-button.save-button,
-button.cancel-button {
-    display: none;
+button.save-button {
     background-color: #007bff;
+    display: inline-block;
+}
+
+button.save-button:hover {
+    background-color: #0056b3;
 }
 
 button.cancel-button {
     background-color: #6c757d;
+    display: inline-block;
 }
 
 button.cancel-button:hover {
     background-color: #5a6268;
+}
+
+button.delete-button {
+    background-color: #dc3545;
+}
+
+button.delete-button:hover {
+    background-color: #c82333;
 }
 
 /* Chart Container */
