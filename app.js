@@ -227,6 +227,9 @@ function createChart(dates, insulinDoses) {
     }
 }
 
+// Variable to store the currently open entry index
+let currentlyOpenIndex = null;
+
 // Toggle edit mode for an entry
 function toggleEdit(index) {
     const entryDisplay = document.getElementById(`entryDisplay${index}`);
@@ -235,19 +238,44 @@ function toggleEdit(index) {
     const cancelButton = document.getElementById(`cancelButton${index}`);
     const editButton = document.querySelector(`.edit-button[onclick="toggleEdit(${index})"]`);
 
+    // Close any previously open edit form
+    if (currentlyOpenIndex !== null && currentlyOpenIndex !== index) {
+        // Close the previously open entry
+        closeEdit(currentlyOpenIndex);
+    }
+
+    // Toggle the current entry
     if (editForm.style.display === "none") {
         entryDisplay.style.display = "none";
         editForm.style.display = "block";
         saveButton.style.display = "inline-block";
         cancelButton.style.display = "inline-block";
         editButton.style.display = "none";
+
+        // Set the currently open entry index
+        currentlyOpenIndex = index;
     } else {
-        entryDisplay.style.display = "block";
-        editForm.style.display = "none";
-        saveButton.style.display = "none";
-        cancelButton.style.display = "none";
-        editButton.style.display = "inline-block";
+        closeEdit(index);
     }
+}
+
+// Close edit mode for a specific entry
+function closeEdit(index) {
+    const entryDisplay = document.getElementById(`entryDisplay${index}`);
+    const editForm = document.getElementById(`editForm${index}`);
+    const saveButton = document.getElementById(`saveButton${index}`);
+    const cancelButton = document.getElementById(`cancelButton${index}`);
+    const editButton = document.querySelector(`.edit-button[onclick="toggleEdit(${index})"]`);
+
+    // Close the form
+    entryDisplay.style.display = "block";
+    editForm.style.display = "none";
+    saveButton.style.display = "none";
+    cancelButton.style.display = "none";
+    editButton.style.display = "inline-block";
+
+    // Reset the currently open index
+    currentlyOpenIndex = null;
 }
 
 // Save edited entry
