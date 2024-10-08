@@ -139,8 +139,24 @@ function displayHistory(savedData) {
                     Meal Carbs: ${entry.mealCarbs !== "N/A" ? entry.mealCarbs + ' grams' : "N/A"}<br>
                     Exercise Duration: ${entry.exerciseDuration !== "N/A" ? entry.exerciseDuration + ' minutes' : "N/A"}
                 </div>
+
+                <!-- Editable Form Hidden Initially -->
+                <div class="edit-form" id="editForm${index}" style="display:none;">
+                    <label for="editDate${index}">Date and Time</label>
+                    <input type="datetime-local" id="editDate${index}" value="${entry.date}" />
+                    
+                    <label for="editInsulinDose${index}">Insulin Dose (units)</label>
+                    <input type="number" id="editInsulinDose${index}" value="${entry.insulinDose}" min="0" />
+                    
+                    <label for="editMealCarbs${index}">Meal Carbs (grams)</label>
+                    <input type="number" id="editMealCarbs${index}" value="${entry.mealCarbs}" min="0" />
+                    
+                    <label for="editExerciseDuration${index}">Exercise Duration (minutes)</label>
+                    <input type="number" id="editExerciseDuration${index}" value="${entry.exerciseDuration}" min="0" />
+                </div>
+
                 <button class="edit-button" onclick="toggleEdit(${index})">Edit</button>
-                <button class="save-button" onclick="saveEntry(${index})" id="saveButton${index}" style="display:none;">Save</button>
+                <button class="save-button" onclick="saveEntry(${index}, '${entry.id}')" id="saveButton${index}" style="display:none;" data-entry-id="${entry.id}">Save</button>
                 <button class="cancel-button" onclick="toggleEdit(${index})" id="cancelButton${index}" style="display:none;">Cancel</button>
                 <button class="delete-button" onclick="deleteEntry('${entry.id}')">Delete</button>
             `;
@@ -214,32 +230,33 @@ function createChart(dates, insulinDoses) {
 // Toggle edit mode for an entry
 function toggleEdit(index) {
     const entryDisplay = document.getElementById(`entryDisplay${index}`);
+    const editForm = document.getElementById(`editForm${index}`);
     const saveButton = document.getElementById(`saveButton${index}`);
     const cancelButton = document.getElementById(`cancelButton${index}`);
     const editButton = document.querySelector(`.edit-button[onclick="toggleEdit(${index})"]`);
 
-    if (entryDisplay.style.display === "none") {
-        entryDisplay.style.display = "block";
-        saveButton.style.display = "none";
-        cancelButton.style.display = "none";
-        editButton.style.display = "inline-block";
-    } else {
+    if (editForm.style.display === "none") {
         entryDisplay.style.display = "none";
+        editForm.style.display = "block";
         saveButton.style.display = "inline-block";
         cancelButton.style.display = "inline-block";
         editButton.style.display = "none";
+    } else {
+        entryDisplay.style.display = "block";
+        editForm.style.display = "none";
+        saveButton.style.display = "none";
+        cancelButton.style.display = "none";
+        editButton.style.display = "inline-block";
     }
 }
 
 // Save edited entry
-async function saveEntry(index) {
+async function saveEntry(index, entryId) {
     const date = document.getElementById(`editDate${index}`).value;
     const insulinDose = document.getElementById(`editInsulinDose${index}`).value;
     const mealCarbs = document.getElementById(`editMealCarbs${index}`).value;
     const exerciseDuration = document.getElementById(`editExerciseDuration${index}`).value;
 
-    const entryId = document.getElementById(`saveButton${index}`).getAttribute("data-entry-id");
-    
     try {
         await db.collection('diabetesData').doc(entryId).update({
             date: date,
@@ -247,7 +264,7 @@ async function saveEntry(index) {
             mealCarbs: mealCarbs,
             exerciseDuration: exerciseDuration
         });
-        loadHistory();
+        loadHistory();  // Reload the history after saving
     } catch (error) {
         console.error("Error updating document: ", error);
     }
