@@ -128,10 +128,22 @@ function displayHistory(savedData) {
     const historyContainer = document.getElementById('historyContainer');
     if (historyContainer) {
         historyContainer.innerHTML = ''; // Clear previous entries
-        savedData.forEach((entry) => {
+        savedData.forEach((entry, index) => {
             const entryElement = document.createElement('div');
             entryElement.className = 'history-entry';
-            entryElement.textContent = `Date: ${entry.date}, Insulin: ${entry.insulinDose} units, Carbs: ${entry.mealCarbs} g, Exercise: ${entry.exerciseDuration} min`;
+            entryElement.innerHTML = `
+                <div id="entryDisplay${index}">
+                    <strong>Entry ${index + 1}</strong><br>
+                    Date and Time: ${entry.date === "N/A" ? "N/A" : new Date(entry.date).toLocaleString()}<br>
+                    Insulin Dose: ${entry.insulinDose !== "N/A" ? entry.insulinDose + ' units' : "N/A"}<br>
+                    Meal Carbs: ${entry.mealCarbs !== "N/A" ? entry.mealCarbs + ' grams' : "N/A"}<br>
+                    Exercise Duration: ${entry.exerciseDuration !== "N/A" ? entry.exerciseDuration + ' minutes' : "N/A"}
+                </div>
+                <button class="edit-button" onclick="toggleEdit(${index})">Edit</button>
+                <button class="save-button" onclick="saveEntry(${index})" id="saveButton${index}" style="display:none;">Save</button>
+                <button class="cancel-button" onclick="toggleEdit(${index})" id="cancelButton${index}" style="display:none;">Cancel</button>
+                <button class="delete-button" onclick="deleteEntry('${entry.id}')">Delete</button>
+            `;
             historyContainer.appendChild(entryElement);
         });
         updateInsulinOnBoard(savedData);
@@ -199,10 +211,65 @@ function createChart(dates, insulinDoses) {
     }
 }
 
+// Toggle edit mode for an entry
+function toggleEdit(index) {
+    const entryDisplay = document.getElementById(`entryDisplay${index}`);
+    const saveButton = document.getElementById(`saveButton${index}`);
+    const cancelButton = document.getElementById(`cancelButton${index}`);
+    const editButton = document.querySelector(`.edit-button[onclick="toggleEdit(${index})"]`);
+
+    if (entryDisplay.style.display === "none") {
+        entryDisplay.style.display = "block";
+        saveButton.style.display = "none";
+        cancelButton.style.display = "none";
+        editButton.style.display = "inline-block";
+    } else {
+        entryDisplay.style.display = "none";
+        saveButton.style.display = "inline-block";
+        cancelButton.style.display = "inline-block";
+        editButton.style.display = "none";
+    }
+}
+
+// Save edited entry
+async function saveEntry(index) {
+    const date = document.getElementById(`editDate${index}`).value;
+    const insulinDose = document.getElementById(`editInsulinDose${index}`).value;
+    const mealCarbs = document.getElementById(`editMealCarbs${index}`).value;
+    const exerciseDuration = document.getElementById(`editExerciseDuration${index}`).value;
+
+    const entryId = document.getElementById(`saveButton${index}`).getAttribute("data-entry-id");
+    
+    try {
+        await db.collection('diabetesData').doc(entryId).update({
+            date: date,
+            insulinDose: insulinDose,
+            mealCarbs: mealCarbs,
+            exerciseDuration: exerciseDuration
+        });
+        loadHistory();
+    } catch (error) {
+        console.error("Error updating document: ", error);
+    }
+}
+
+// Delete an entry
+async function deleteEntry(entryId) {
+    try {
+        await db.collection('diabetesData').doc(entryId).delete();
+        loadHistory();
+    } catch (error) {
+        console.error("Error deleting document: ", error);
+    }
+}
+
 // Expose functions to the global scope
 window.setInsulinDose = setInsulinDose;
 window.setExerciseDuration = setExerciseDuration;
 window.setupDataSaving = setupDataSaving;
+window.toggleEdit = toggleEdit;
+window.saveEntry = saveEntry;
+window.deleteEntry = deleteEntry;
 
 // Initialize functionality based on the page
 document.addEventListener('DOMContentLoaded', function () {
