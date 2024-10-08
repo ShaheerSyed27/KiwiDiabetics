@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>Entry History</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Include Chart.js -->
+    <!-- Include Moment.js, Chart.js, and the adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
 </head>
 <body>
     <!-- Fixed Navigation Bar -->
@@ -35,7 +37,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
-    <script type="module" src="app.js" defer></script>
-
+    <script src="app.js" type="module" defer></script>
 </body>
 </html>
