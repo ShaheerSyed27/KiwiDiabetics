@@ -12,12 +12,17 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js@3.9.1";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 // Sign in anonymously
-auth.signInAnonymously()
+signInAnonymously(auth)
     .then(() => {
         console.log('Signed in anonymously');
         if (document.getElementById('historyContainer')) {
@@ -30,7 +35,7 @@ auth.signInAnonymously()
 
 // Setup data saving for index.html
 function setupDataSaving() {
-    document.getElementById('saveDataBtn').addEventListener('click', function () {
+    document.getElementById('saveDataBtn').addEventListener('click', async function () {
         const date = document.getElementById('date').value || "N/A";
         const insulinDose = document.getElementById('insulinDose').value || "N/A";
         const mealCarbs = document.getElementById('mealCarbs').value || "N/A";
@@ -42,20 +47,19 @@ function setupDataSaving() {
             insulinDose: insulinDose,
             mealCarbs: mealCarbs,
             exerciseDuration: exerciseDuration,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            timestamp: serverTimestamp(),
             userId: userId
         };
 
-        db.collection('diabetesData').add(dataEntry)
-            .then((docRef) => {
-                console.log("Document written with ID: ", docRef.id);
-                clearForm();
-                document.getElementById('dataOutput').innerHTML = `<p>Data saved successfully!</p>`;
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-                alert('An error occurred while saving data.');
-            });
+        try {
+            const docRef = await addDoc(collection(db, 'diabetesData'), dataEntry);
+            console.log("Document written with ID: ", docRef.id);
+            clearForm();
+            document.getElementById('dataOutput').innerHTML = `<p>Data saved successfully!</p>`;
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            alert('An error occurred while saving data.');
+        }
     });
 }
 
@@ -93,24 +97,21 @@ function clearForm() {
 }
 
 // Load history and calculate insulin on board for history.html
-function loadHistory() {
+async function loadHistory() {
     const userId = auth.currentUser ? auth.currentUser.uid : null;
 
-    db.collection('diabetesData')
-        .where('userId', '==', userId)
-        .orderBy('timestamp', 'desc')
-        .get()
-        .then((querySnapshot) => {
-            const savedData = [];
-            querySnapshot.forEach((doc) => {
-                savedData.push({ id: doc.id, ...doc.data() });
-            });
-            displayHistory(savedData);
-        })
-        .catch((error) => {
-            console.error("Error getting documents: ", error);
-            document.getElementById('historyContainer').innerHTML = '<p>Error loading data.</p>';
+    const q = query(collection(db, 'diabetesData'), where('userId', '==', userId), orderBy('timestamp', 'desc'));
+    try {
+        const querySnapshot = await getDocs(q);
+        const savedData = [];
+        querySnapshot.forEach((doc) => {
+            savedData.push({ id: doc.id, ...doc.data() });
         });
+        displayHistory(savedData);
+    } catch (error) {
+        console.error("Error getting documents: ", error);
+        document.getElementById('historyContainer').innerHTML = '<p>Error loading data.</p>';
+    }
 }
 
 // Display the history entries on history.html
