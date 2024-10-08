@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Diabetes Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0; /* Ensure consistency */
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        /* Updated navbar style */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: white; /* White background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            border-bottom: 1px solid lightgrey; /* Add grey underline */
+            z-index: 1000;
+        }
+
+        /* Add background box on hover */
+        .navbar a {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 15px;
+            padding: 10px 15px; /* Add padding for box effect */
+            border-radius: 5px; /* Rounded corners for background box */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Hover effect: background color and text color change */
+        .navbar a:hover {
+            background-color: lightgrey; /* Box background on hover */
+            color: white;
+        }
+
+        /* Highlight the active page (Tracker page) */
+        .navbar a.active {
+            background-color: grey; /* Box background for active page */
+            color: white;
+        }
+
+        /* Padding to prevent content from going behind the navbar */
+        .content {
+            padding-top: 70px; /* Adjusted to match across pages */
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .data-output {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .quick-options {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .quick-options button {
+            width: 48%;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .quick-options button:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Navigation Bar -->
+    <div class="navbar">
+        <a href="index.html" class="active">Tracker</a>
+        <a href="history.html">History</a>
+    </div>
+
+    <!-- Main content with padding to prevent overlap with the navbar -->
+    <div class="content">
+        <h1>Diabetes Management Tracker</h1>
+
+        <div class="form-container">
+            <div class="form-section">
+                <label for="date">Date and Time</label>
+                <input type="datetime-local" id="date" name="date">
+            </div>
+
+            <div class="form-section">
+                <label for="insulinDose">Insulin Dose (units)</label>
+                <input type="number" id="insulinDose" name="insulinDose" min="0" placeholder="Enter insulin dose in units">
+                <div class="quick-options">
+                    <button onclick="setInsulinDose(5)">5 units</button>
+                    <button onclick="setInsulinDose(10)">10 units</button>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label for="mealCarbs">Meal Carbs (grams)</label>
+                <input type="number" id="mealCarbs" name="mealCarbs" min="0" placeholder="Enter carbs consumed in grams">
+            </div>
+
+            <div class="form-section">
+                <label for="exerciseDuration">Exercise Duration (minutes)</label>
+                <input type="number" id="exerciseDuration" name="exerciseDuration" min="0" placeholder="Enter exercise duration in minutes">
+                <div class="quick-options">
+                    <button onclick="setExerciseDuration(30)">30 minutes</button>
+                    <button onclick="setExerciseDuration(60)">1 hour</button>
+                </div>
+            </div>
+
+            <button id="saveDataBtn">Save Data</button>
+
+            <div class="data-output" id="dataOutput"></div>
+        </div>
+    </div>
+
+    <script>
+        // Pre-fill current date and time with correct local time
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const datetimeInput = document.getElementById('date');
+            datetimeInput.value = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+        });
+
+        // Quick set buttons for Insulin Dose
+        function setInsulinDose(dose) {
+            document.getElementById('insulinDose').value = dose;
+        }
+
+        // Quick set buttons for Exercise Duration
+        function setExerciseDuration(duration) {
+            document.getElementById('exerciseDuration').value = duration;
+        }
+
+        // Function to save the input data to local storage and clear the form
+        document.getElementById('saveDataBtn').addEventListener('click', function() {
+            const date = document.getElementById('date').value;
+            const insulinDose = document.getElementById('insulinDose').value || "N/A";  // If empty, store as "N/A"
+            const mealCarbs = document.getElementById('mealCarbs').value || "N/A";
+            const exerciseDuration = document.getElementById('exerciseDuration').value || "N/A";
+
+            // Save the data if at least one field is filled
+            if (date || insulinDose !== "N/A" || mealCarbs !== "N/A" || exerciseDuration !== "N/A") {
+                const dataEntry = {
+                    date: date || "N/A",
+                    insulinDose,
+                    mealCarbs,
+                    exerciseDuration
+                };
+
+                // Retrieve current data from local storage or initialize an empty array
+                const savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
+
+                // Add the new entry to the saved data
+                savedData.push(dataEntry);
+
+                // Store updated data back in local storage
+                localStorage.setItem('diabetesData', JSON.stringify(savedData));
+
+                // Clear the input fields after saving the data
+                clearForm();
+
+                // Display confirmation message
+                document.getElementById('dataOutput').innerHTML = `<p>Data saved successfully!</p>`;
+            } else {
+                alert('Please enter at least one field.');
+            }
+        });
+
+        // Function to clear form fields
+        function clearForm() {
+            document.getElementById('date').value = '';
+            document.getElementById('insulinDose').value = '';
+            document.getElementById('mealCarbs').value = '';
+            document.getElementById('exerciseDuration').value = '';
+
+            // Optionally, reset the date to the current time after clearing
+            const now = new Date();
+            document.getElementById('date').value = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Entry History</title>
+    <style>
+        body {
+            /*Should work as usual*/
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0; /* Set to 0 to match index.html */
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        /* Updated navbar style */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: white; /* White background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            border-bottom: 1px solid lightgrey; /* Add grey underline */
+            z-index: 1000;
+        }
+
+        /* Add background box on hover */
+        .navbar a {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 15px;
+            padding: 10px 15px; /* Add padding for box effect */
+            border-radius: 5px; /* Rounded corners for background box */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Hover effect: background color and text color change */
+        .navbar a:hover {
+            background-color: lightgrey; /* Box background on hover */
+            color: white;
+        }
+
+        /* Highlight the active page (History page) */
+        .navbar a.active {
+            background-color: grey; /* Box background for active page */
+            color: white;
+        }
+
+        /* Padding to prevent content from going behind the navbar */
+        .content {
+            padding-top: 70px; /* Set to 70px to match index.html */
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .history-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-entry {
+            padding: 20px;
+            border-bottom: 1px solid #ccc;
+            position: relative;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .delete-button, .edit-button, .save-button, .cancel-button {
+            position: absolute;
+            top: 10px;
+            border: none;
+            color: white;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .edit-button {
+            right: 130px;
+            background-color: #4CAF50;
+        }
+
+        .delete-button {
+            right: 10px;
+            background-color: #ff4d4d;
+        }
+
+        .save-button {
+            right: 130px;
+            background-color: #4CAF50;
+            display: none;
+        }
+
+        .cancel-button {
+            right: 10px;
+            background-color: #f0ad4e;
+            display: none;
+        }
+
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .edit-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .edit-form select, .edit-form input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 1em;
+        }
+
+        #chart-container {
+            margin: 30px auto;
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #insulin-on-board {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        canvas {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Navigation Bar -->
+    <div class="navbar">
+        <a href="index.html">Tracker</a>
+        <a href="history.html" class="active">History</a>
+    </div>
+
+    <!-- Main content with padding to prevent overlap with the navbar -->
+    <div class="content">
+        <h1>History of Entries</h1>
+
+        <div id="chart-container">
+            <canvas id="historyChart"></canvas>
+        </div>
+
+        <div id="insulin-on-board">
+            Total Insulin on Board: <span id="totalInsulin">0</span> units
+        </div>
+
+        <div class="history-container" id="historyContainer">
+            <!-- Entries will be displayed here -->
+        </div>
+    </div>
+
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+
+    <script>
+        // Declare variables globally so they can be used across functions
+        let dates = [];
+        let insulinDoses = [];
+        let insulinEntries = []; // To keep track of insulin entries and times
+        let historyChart = null; // Chart instance
+
+        // Function to format a Date object to 'YYYY-MM-DDTHH:MM' in local time
+        function formatDateTimeLocal(date) {
+            const pad = (num) => num.toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const month = pad(date.getMonth() + 1); // Months are zero-based
+            const day = pad(date.getDate());
+            const hours = pad(date.getHours());
+            const minutes = pad(date.getMinutes());
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // Function to load the stored data from local storage and display it
+        function loadHistory() {
+            console.log("Loading history...");
+            const savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
+            console.log("Saved data loaded:", savedData);
+            const historyContainer = document.getElementById('historyContainer');
+            const totalInsulinElement = document.getElementById('totalInsulin');
+
+            if (savedData.length === 0) {
+                historyContainer.innerHTML = '<p>No data found.</p>';
+                console.log("No data found in local storage.");
+                dates = [];
+                insulinDoses = [];
+                insulinEntries = [];
+                if (historyChart) {
+                    historyChart.destroy(); // Destroy the chart when no data is available
+                }
+            } else {
+                // Clear the arrays before adding new data
+                dates = [];
+                insulinDoses = [];
+                insulinEntries = [];
+                historyContainer.innerHTML = ''; // Clear previous entries
+
+                savedData.forEach((entry, index) => {
+                    console.log(`Processing entry ${index + 1}:`, entry);
+                    // Display the entry in the history section
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'history-entry';
+                    entryDiv.innerHTML = `
+                        <div id="entryDisplay${index}">
+                            <strong>Entry ${index + 1}</strong><br>
+                            Date and Time: ${entry.date === "N/A" ? "N/A" : new Date(entry.date).toLocaleString()}<br>
+                            Insulin Dose: ${entry.insulinDose !== "N/A" ? entry.insulinDose + ' units' : "N/A"}<br>
+                            Meal Carbs: ${entry.mealCarbs !== "N/A" ? entry.mealCarbs + ' grams' : "N/A"}<br>
+                            Exercise Duration: ${entry.exerciseDuration !== "N/A" ? entry.exerciseDuration + ' minutes' : "N/A"}
+                        </div>
+                        <div id="entryEdit${index}" style="display:none;">
+                            <div class="edit-form">
+                                <label for="editDate${index}">Date and Time:</label>
+                                <input type="datetime-local" id="editDate${index}" value="${formatDateTimeLocal(new Date(entry.date))}">
+                                <label for="editInsulinDose${index}">Insulin Dose (0.1 to 100 units):</label>
+                                <select id="editInsulinDose${index}">
+                                    ${generateOptions(0.1, 100, 0.1, entry.insulinDose)}
+                                </select>
+                                <label for="editMealCarbs${index}">Meal Carbs (grams):</label>
+                                <select id="editMealCarbs${index}">
+                                    ${generateOptions(0, 500, 1, entry.mealCarbs)}
+                                </select>
+                                <label for="editExerciseDuration${index}">Exercise Duration (minutes):</label>
+                                <select id="editExerciseDuration${index}">
+                                    ${generateOptions(0, 300, 1, entry.exerciseDuration)}
+                                </select>
+                            </div>
+                        </div>
+                        <button class="edit-button" onclick="toggleEdit(${index})">Edit</button>
+                        <button class="save-button" onclick="saveEntry(${index})" id="saveButton${index}">Save</button>
+                        <button class="cancel-button" onclick="toggleEdit(${index})" id="cancelButton${index}">Cancel</button>
+                        <button class="delete-button" onclick="deleteEntry(${index})">Delete</button>
+                    `;
+                    historyContainer.appendChild(entryDiv);
+
+                    // Prepare data for the chart and calculation (if date is valid)
+                    if (entry.date !== "N/A" && entry.date) {
+                        let entryDate;
+                        if (!isNaN(entry.date)) {
+                            // entry.date is a number (milliseconds since epoch)
+                            entryDate = new Date(parseInt(entry.date));
+                        } else {
+                            // entry.date is a string (ISO format)
+                            entryDate = new Date(entry.date);
+                        }
+
+                        // Check if entryDate is valid
+                        if (!isNaN(entryDate.getTime())) {
+                            dates.push(entryDate.toLocaleString());
+                            const insulinDoseValue = entry.insulinDose !== "N/A" && entry.insulinDose ? parseFloat(entry.insulinDose) : 0;
+                            insulinDoses.push(insulinDoseValue);
+                            insulinEntries.push({ dose: insulinDoseValue, time: entryDate });
+                            console.log(`Added entry to insulinEntries:`, { dose: insulinDoseValue, time: entryDate });
+                        } else {
+                            console.warn(`Invalid date for entry ${index + 1}:`, entry.date);
+                        }
+                    }
+                });
+
+                if (dates.length > 0) {
+                    console.log("Creating chart with dates:", dates, "and insulin doses:", insulinDoses);
+                    createChart(dates, insulinDoses);
+                } else {
+                    console.log('No valid data for creating the chart.');
+                    if (historyChart) {
+                        historyChart.destroy(); // Destroy the chart when no valid data is available
+                    }
+                }
+            }
+
+            // Update insulin on board
+            updateInsulinOnBoard();
+        }
+
+        // Function to generate options for dropdown
+        function generateOptions(start, end, step, selectedValue) {
+            let options = '';
+            for (let value = start; value <= end; value = parseFloat((value + step).toFixed(2))) {
+                options += `<option value="${value}" ${value == selectedValue ? 'selected' : ''}>${value}</option>`;
+            }
+            return options;
+        }
+
+        // Function to toggle between display and edit mode
+        function toggleEdit(index) {
+            const entryDisplay = document.getElementById(`entryDisplay${index}`);
+            const entryEdit = document.getElementById(`entryEdit${index}`);
+            const editButton = document.querySelector(`.edit-button[onclick="toggleEdit(${index})"]`);
+            const saveButton = document.getElementById(`saveButton${index}`);
+            const cancelButton = document.getElementById(`cancelButton${index}`);
+
+            if (entryDisplay.style.display === "none") {
+                entryDisplay.style.display = "block";
+                entryEdit.style.display = "none";
+                editButton.style.display = "inline-block";
+                saveButton.style.display = "none";
+                cancelButton.style.display = "none";
+            } else {
+                entryDisplay.style.display = "none";
+                entryEdit.style.display = "block";
+                editButton.style.display = "none";
+                saveButton.style.display = "inline-block";
+                cancelButton.style.display = "inline-block";
+            }
+        }
+
+        // Function to save an edited entry in local storage
+        function saveEntry(index) {
+            console.log(`Saving edited entry at index ${index}...`);
+            let savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
+            const entry = savedData[index];
+
+            // Get the new values from the input fields
+            const newDate = document.getElementById(`editDate${index}`).value;
+            const newInsulinDose = document.getElementById(`editInsulinDose${index}`).value;
+            const newMealCarbs = document.getElementById(`editMealCarbs${index}`).value;
+            const newExerciseDuration = document.getElementById(`editExerciseDuration${index}`).value;
+
+            // Update the entry with new values
+            if (newDate) {
+                const dateValue = new Date(newDate);
+                entry.date = dateValue.toISOString(); // Store as ISO string
+            }
+            if (newInsulinDose) entry.insulinDose = newInsulinDose;
+            if (newMealCarbs) entry.mealCarbs = newMealCarbs;
+            if (newExerciseDuration) entry.exerciseDuration = newExerciseDuration;
+
+            // Save updated data back to local storage
+            savedData[index] = entry;
+            localStorage.setItem('diabetesData', JSON.stringify(savedData));
+
+            // Update the UI
+            loadHistory();
+        }
+
+        // Function to delete an entry from local storage
+        function deleteEntry(index) {
+            console.log(`Deleting entry at index ${index}...`);
+            let savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
+            savedData.splice(index, 1); // Remove the entry at the specified index
+            localStorage.setItem('diabetesData', JSON.stringify(savedData)); // Save the updated data back to local storage
+
+            // Update the UI
+            loadHistory();
+        }
+
+        // Function to update the total insulin on board based on time passed
+        function updateInsulinOnBoard() {
+            console.log("Updating insulin on board...");
+            const totalInsulinElement = document.getElementById('totalInsulin');
+            const currentTime = new Date();
+            console.log("Current time:", currentTime.toISOString());
+            let totalInsulin = 0;
+
+            insulinEntries.forEach((entry, index) => {
+                const timeDifference = (currentTime.getTime() - entry.time.getTime()) / (1000 * 60); // Time difference in minutes
+                console.log(`Entry ${index + 1} - Time difference (minutes):`, timeDifference);
+                let remainingInsulin = entry.dose;
+
+                if (timeDifference >= 240 || timeDifference < 0) {
+                    // More than 4 hours passed or future date, no insulin left
+                    remainingInsulin = 0;
+                    console.log(`Entry ${index + 1} - No insulin remaining. Remaining insulin:`, remainingInsulin);
+                } else {
+                    // Calculate the remaining insulin based on the time difference
+                    const percentageUsed = Math.min(timeDifference / 240, 1); // Linear reduction over 4 hours
+                    remainingInsulin = entry.dose * (1 - percentageUsed);
+                    console.log(`Entry ${index + 1} - Percentage used:`, percentageUsed, "Remaining insulin:", remainingInsulin);
+                }
+
+                totalInsulin += Math.max(remainingInsulin, 0);
+            });
+
+            console.log("Total insulin on board calculated:", totalInsulin);
+            totalInsulinElement.textContent = totalInsulin.toFixed(2);
+        }
+
+        // Function to create the chart using Chart.js
+        function createChart(dates, insulinDoses) {
+            if (dates.length === 0) {
+                console.log('No valid dates for the chart');
+                if (historyChart) {
+                    historyChart.destroy(); // Destroy the chart if no valid data is available
+                }
+                return; // If there are no valid dates, exit the function
+            }
+
+            const ctx = document.getElementById('historyChart');
+            if (!ctx) {
+                console.error('Canvas element not found!');
+                return;
+            }
+
+            console.log("Creating chart...");
+            if (historyChart) {
+                historyChart.destroy(); // Destroy the previous chart instance if it exists
+            }
+
+            historyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: 'Insulin Dose (units)',
+                            data: insulinDoses,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: false,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Date and Time'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Insulin Dose (units)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load history when the page is loaded
+        window.onload = loadHistory;
+
+        // Sample data for testing purposes
+        // Uncomment this section to initialize sample data in localStorage for testing
+        /*
+        localStorage.setItem('diabetesData', JSON.stringify([
+            {
+                date: new Date(Date.now() - (3 * 60 * 60 * 1000)).toISOString(), // 3 hours ago
+                insulinDose: "4",
+                mealCarbs: "30",
+                exerciseDuration: "15"
+            },
+            {
+                date: new Date(Date.now() - (1 * 60 * 60 * 1000)).toISOString(), // 1 hour ago
+                insulinDose: "5",
+                mealCarbs: "50",
+                exerciseDuration: "20"
+            }
+        ]));
+        */
+    </script>
+</body>
+</html>
