@@ -168,7 +168,7 @@ input[type="text"], input[type="datetime-local"] {
 }
 
 .quick-option-button {
-    background-color: #4CAF50;
+    background-color: #007bb5;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -180,12 +180,12 @@ input[type="text"], input[type="datetime-local"] {
 }
 
 .quick-option-button:hover {
-    background-color: #45a049;
+    background-color: #005f8a;
 }
 
 #saveDataBtn {
     width: 100%;
-    background-color: #008CBA;
+    background-color: #4CAF50;
     color: white;
     border: none;
     padding: 15px;
@@ -196,7 +196,7 @@ input[type="text"], input[type="datetime-local"] {
 }
 
 #saveDataBtn:hover {
-    background-color: #007bb5;
+    background-color: #388e3c;
 }
 
 /* Buttons Styling */
