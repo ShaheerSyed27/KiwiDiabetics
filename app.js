@@ -1,6 +1,6 @@
 // app.js
 
-// Initialize Firebase using the global Firebase object provided by the Firebase script tags.
+// Firebase configuration and initialization
 const firebaseConfig = {
     apiKey: "AIzaSyDnOPUB_2u93a9XyIa3ifLyc7Pq8gD0JzE",
     authDomain: "kiwidiabetics.firebaseapp.com",
@@ -11,7 +11,7 @@ const firebaseConfig = {
     measurementId: "G-KDCWBZQY08"
 };
 
-// Initialize Firebase
+// Initialize Firebase using the global Firebase object
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
