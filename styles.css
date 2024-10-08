@@ -1,157 +1,199 @@
-/* General Styles */
+/* Updated CSS for Diabetes Management Tracker */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    color: #333;
-}
-
-.container {
-    max-width: 800px;
-    margin: 30px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Header Styles */
-header {
-    text-align: center;
-    padding-bottom: 20px;
 }
 
 h1 {
-    font-size: 2em;
-    color: #444;
+    text-align: center;
 }
 
-/* Form Styles */
-form {
-    display: grid;
-    grid-gap: 10px;
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    border-bottom: 1px solid lightgrey;
+    z-index: 1000;
+}
+
+.navbar a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 15px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar a:hover {
+    background-color: lightgrey;
+    color: white;
+}
+
+.navbar a.active {
+    background-color: grey;
+    color: white;
+}
+
+.content {
+    padding-top: 70px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.history-container, .form-container {
+    max-width: 600px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.history-entry {
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.delete-button, .edit-button, .save-button, .cancel-button {
+    position: absolute;
+    top: 10px;
+    border: none;
+    color: white;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+.edit-button {
+    right: 130px;
+    background-color: #4CAF50;
+}
+
+.delete-button {
+    right: 10px;
+    background-color: #ff4d4d;
+}
+
+.save-button {
+    right: 130px;
+    background-color: #4CAF50;
+    display: none;
+}
+
+.cancel-button {
+    right: 10px;
+    background-color: #f0ad4e;
+    display: none;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.edit-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.edit-form select, .edit-form input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 1em;
+}
+
+#chart-container {
+    margin: 30px auto;
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#insulin-on-board {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+canvas {
+    width: 100%;
+    height: 300px;
+}
+
+/* Form Styling */
+.form-group {
     margin-bottom: 20px;
 }
 
-input[type="text"],
-input[type="datetime-local"],
-button.save-data-btn {
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"], input[type="datetime-local"] {
+    width: 100%;
     padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
     font-size: 1em;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+}
+
+.quick-option-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.quick-option-button:hover {
+    background-color: #45a049;
+}
+
+#saveDataBtn {
     width: 100%;
-}
-
-button.save-data-btn {
-    cursor: pointer;
-    background-color: #28a745;
+    background-color: #008CBA;
     color: white;
     border: none;
-    transition: background-color 0.3s;
-}
-
-button.save-data-btn:hover {
-    background-color: #218838;
-}
-
-.quick-set-buttons {
-    display: flex;
-    justify-content: space-between;
-}
-
-.quick-set-buttons button.quick-set-btn {
-    width: 48%;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-button.quick-set-btn:hover {
-    background-color: #0056b3;
-}
-
-/* History Entry Styles */
-.history-entry {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
     padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-
-.history-entry strong {
-    font-size: 1.1em;
-    color: #555;
-}
-
-button.edit-button,
-button.delete-button,
-button.save-button,
-button.cancel-button {
-    margin-top: 10px;
-    margin-right: 10px;
-    padding: 10px;
-    font-size: 0.9em;
-    border-radius: 4px;
-    border: none;
+    font-size: 1em;
     cursor: pointer;
+    border-radius: 5px;
     transition: background-color 0.3s;
 }
 
-button.edit-button {
-    background-color: #ffc107;
-    color: white;
-}
-
-button.edit-button:hover {
-    background-color: #e0a800;
-}
-
-button.save-button {
-    background-color: #007bff;
-    color: white;
-}
-
-button.save-button:hover {
-    background-color: #0056b3;
-}
-
-button.cancel-button {
-    background-color: #6c757d;
-    color: white;
-}
-
-button.cancel-button:hover {
-    background-color: #5a6268;
-}
-
-button.delete-button {
-    background-color: #dc3545;
-    color: white;
-}
-
-button.delete-button:hover {
-    background-color: #c82333;
-}
-
-/* Chart Container */
-.chart-container {
-    position: relative;
-    height: 400px;
-    width: 100%;
-    margin-bottom: 30px;
-}
-
-/* Footer Information */
-footer {
-    text-align: center;
-    font-size: 0.9em;
-    color: #777;
-    padding: 10px;
+#saveDataBtn:hover {
+    background-color: #007bb5;
 }
