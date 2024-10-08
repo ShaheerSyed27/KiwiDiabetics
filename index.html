@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Diabetes Management</title>
-    <!-- Include Firebase JS SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
-    <!-- Include other Firebase products as needed -->
+    <!-- Include Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js"></script>
     <style>
-        /* [Your existing CSS styles here] */
+        /* Your existing CSS styles here */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -182,7 +182,7 @@
 
     <script>
         // Include Firebase configuration and initialization
-        // Your web app's Firebase configuration
+        // Replace the placeholder values with your actual Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDnOPUB_2u93a9XyIa3ifLyc7Pq8gD0JzE",
             authDomain: "kiwidiabetics.firebaseapp.com",
@@ -195,7 +195,19 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firestore and Auth
         const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Sign in anonymously
+        auth.signInAnonymously()
+            .then(() => {
+                console.log('Signed in anonymously');
+            })
+            .catch((error) => {
+                console.error('Error signing in anonymously:', error);
+            });
 
         // Pre-fill current date and time with correct local time
         document.addEventListener('DOMContentLoaded', function() {
@@ -221,13 +233,17 @@
             const mealCarbs = document.getElementById('mealCarbs').value || "N/A";
             const exerciseDuration = document.getElementById('exerciseDuration').value || "N/A";
 
+            // Get the current user ID
+            const userId = auth.currentUser ? auth.currentUser.uid : null;
+
             // Create a data entry object
             const dataEntry = {
                 date: date,
                 insulinDose: insulinDose,
                 mealCarbs: mealCarbs,
                 exerciseDuration: exerciseDuration,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: userId
             };
 
             // Save the data entry to Firestore
