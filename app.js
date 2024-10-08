@@ -1,6 +1,6 @@
 // app.js
 
-// Include Firebase configuration and initialization
+// Initialize Firebase using the global Firebase object provided by the Firebase script tags.
 const firebaseConfig = {
     apiKey: "AIzaSyDnOPUB_2u93a9XyIa3ifLyc7Pq8gD0JzE",
     authDomain: "kiwidiabetics.firebaseapp.com",
@@ -12,17 +12,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js@3.9.1";
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
 // Sign in anonymously
-signInAnonymously(auth)
+auth.signInAnonymously()
     .then(() => {
         console.log('Signed in anonymously');
         if (document.getElementById('historyContainer')) {
@@ -47,12 +42,12 @@ function setupDataSaving() {
             insulinDose: insulinDose,
             mealCarbs: mealCarbs,
             exerciseDuration: exerciseDuration,
-            timestamp: serverTimestamp(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             userId: userId
         };
 
         try {
-            const docRef = await addDoc(collection(db, 'diabetesData'), dataEntry);
+            const docRef = await db.collection('diabetesData').add(dataEntry);
             console.log("Document written with ID: ", docRef.id);
             clearForm();
             document.getElementById('dataOutput').innerHTML = `<p>Data saved successfully!</p>`;
@@ -100,9 +95,11 @@ function clearForm() {
 async function loadHistory() {
     const userId = auth.currentUser ? auth.currentUser.uid : null;
 
-    const q = query(collection(db, 'diabetesData'), where('userId', '==', userId), orderBy('timestamp', 'desc'));
+    const q = db.collection('diabetesData')
+                .where('userId', '==', userId)
+                .orderBy('timestamp', 'desc');
     try {
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await q.get();
         const savedData = [];
         querySnapshot.forEach((doc) => {
             savedData.push({ id: doc.id, ...doc.data() });
