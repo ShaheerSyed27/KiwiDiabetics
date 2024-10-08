@@ -1,4 +1,4 @@
-/* Modernized Styling for Diabetes Management Tracker */
+/* General Styling for Diabetes Management Tracker */
 
 body {
     font-family: 'Roboto', sans-serif;
@@ -52,6 +52,7 @@ h1 {
     padding-right: 20px;
 }
 
+/* Form Styling */
 .form-container {
     max-width: 650px;
     margin: 40px auto;
@@ -118,13 +119,49 @@ button:hover {
     background-color: #d35400;
 }
 
+/* History Page Specific Styling */
+
+/* Center and Resize Chart */
+#chart-container {
+    margin: 40px auto;
+    width: 80%;  /* Make the chart smaller */
+    max-width: 500px;  /* Restrict max width */
+    height: 300px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Centering and styling the Insulin on Board section */
+#insulin-on-board {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* History Entry Styling */
+.history-container {
+    max-width: 700px;
+    margin: 50px auto;
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+}
+
 .history-entry {
     padding: 15px;
     border-bottom: 1px solid #ecf0f1;
-    background-color: #fefefe;
+    background-color: #fafafa;
     border-radius: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     transition: background-color 0.3s, box-shadow 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .history-entry:hover {
@@ -132,28 +169,37 @@ button:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
-.edit-button, .delete-button, .save-button, .cancel-button {
+.history-entry h3 {
+    margin: 0;
+    color: #34495e;
+    font-size: 1.2em;
+}
+
+.history-entry p {
+    margin: 10px 0;
+    color: #7f8c8d;
+    font-size: 0.9em;
+}
+
+/* Updated Buttons for Edit/Delete */
+.edit-button, .delete-button {
+    position: absolute;
+    top: 15px;
     font-weight: bold;
     padding: 8px 12px;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .edit-button {
+    right: 85px;
     background-color: #27ae60;
 }
 
 .delete-button {
+    right: 15px;
     background-color: #e74c3c;
-}
-
-.save-button {
-    background-color: #2ecc71;
-}
-
-.cancel-button {
-    background-color: #f39c12;
 }
 
 .edit-button:hover {
@@ -164,11 +210,28 @@ button:hover {
     background-color: #c0392b;
 }
 
-.history-container {
-    max-width: 650px;
-    margin: 40px auto;
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+/* Refresh Form Styling Inside History Entries */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #bdc3c7;
+}
+
+.edit-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #34495e;
+}
+
+.edit-form select, .edit-form input {
+    padding: 12px;
+    border: 1px solid #bdc3c7;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 1em;
 }
