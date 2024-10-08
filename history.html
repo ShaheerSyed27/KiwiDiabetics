@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Entry History</title>
+    <!-- Include Firebase JS SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+    <!-- Include other Firebase products as needed -->
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
+        /* [Your existing CSS styles here] */
         body {
-            /*Should work as usual*/
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0; /* Set to 0 to match index.html */
+            padding: 0;
         }
 
         h1 {
@@ -21,41 +27,37 @@
             position: fixed;
             top: 0;
             width: 100%;
-            background-color: white; /* White background */
+            background-color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 50px;
-            border-bottom: 1px solid lightgrey; /* Add grey underline */
+            border-bottom: 1px solid lightgrey;
             z-index: 1000;
         }
 
-        /* Add background box on hover */
         .navbar a {
             color: black;
             text-decoration: none;
             font-weight: bold;
             margin: 0 15px;
-            padding: 10px 15px; /* Add padding for box effect */
-            border-radius: 5px; /* Rounded corners for background box */
+            padding: 10px 15px;
+            border-radius: 5px;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Hover effect: background color and text color change */
         .navbar a:hover {
-            background-color: lightgrey; /* Box background on hover */
+            background-color: lightgrey;
             color: white;
         }
 
-        /* Highlight the active page (History page) */
         .navbar a.active {
-            background-color: grey; /* Box background for active page */
+            background-color: grey;
             color: white;
         }
 
-        /* Padding to prevent content from going behind the navbar */
         .content {
-            padding-top: 70px; /* Set to 70px to match index.html */
+            padding-top: 70px;
             padding-left: 20px;
             padding-right: 20px;
         }
@@ -182,10 +184,23 @@
         </div>
     </div>
 
-    <!-- Include Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
-
     <script>
+        // Include Firebase configuration and initialization
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnOPUB_2u93a9XyIa3ifLyc7Pq8gD0JzE",
+            authDomain: "kiwidiabetics.firebaseapp.com",
+            projectId: "kiwidiabetics",
+            storageBucket: "kiwidiabetics.appspot.com",
+            messagingSenderId: "590676523026",
+            appId: "1:590676523026:web:ac1dff738628b2202bc0cb",
+            measurementId: "G-KDCWBZQY08"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // Declare variables globally so they can be used across functions
         let dates = [];
         let insulinDoses = [];
@@ -203,17 +218,30 @@
             return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
-        // Function to load the stored data from local storage and display it
+        // Function to load the stored data from Firestore and display it
         function loadHistory() {
             console.log("Loading history...");
-            const savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
-            console.log("Saved data loaded:", savedData);
+            db.collection('diabetesData').orderBy('timestamp', 'desc').get()
+            .then((querySnapshot) => {
+                const savedData = [];
+                querySnapshot.forEach((doc) => {
+                    savedData.push({ id: doc.id, ...doc.data() });
+                });
+                displayHistory(savedData);
+            })
+            .catch((error) => {
+                console.error("Error getting documents: ", error);
+                document.getElementById('historyContainer').innerHTML = '<p>Error loading data.</p>';
+            });
+        }
+
+        function displayHistory(savedData) {
             const historyContainer = document.getElementById('historyContainer');
             const totalInsulinElement = document.getElementById('totalInsulin');
 
             if (savedData.length === 0) {
                 historyContainer.innerHTML = '<p>No data found.</p>';
-                console.log("No data found in local storage.");
+                console.log("No data found in Firestore.");
                 dates = [];
                 insulinDoses = [];
                 insulinEntries = [];
@@ -258,10 +286,10 @@
                                 </select>
                             </div>
                         </div>
-                        <button class="edit-button" onclick="toggleEdit(${index})">Edit</button>
-                        <button class="save-button" onclick="saveEntry(${index})" id="saveButton${index}">Save</button>
+                        <button class="edit-button" onclick="toggleEdit(${index}, '${entry.id}')">Edit</button>
+                        <button class="save-button" onclick="saveEntry(${index}, '${entry.id}')" id="saveButton${index}">Save</button>
                         <button class="cancel-button" onclick="toggleEdit(${index})" id="cancelButton${index}">Cancel</button>
-                        <button class="delete-button" onclick="deleteEntry(${index})">Delete</button>
+                        <button class="delete-button" onclick="deleteEntry('${entry.id}')" id="deleteButton${index}">Delete</button>
                     `;
                     historyContainer.appendChild(entryDiv);
 
@@ -314,10 +342,10 @@
         }
 
         // Function to toggle between display and edit mode
-        function toggleEdit(index) {
+        function toggleEdit(index, docId) {
             const entryDisplay = document.getElementById(`entryDisplay${index}`);
             const entryEdit = document.getElementById(`entryEdit${index}`);
-            const editButton = document.querySelector(`.edit-button[onclick="toggleEdit(${index})"]`);
+            const editButton = document.querySelector(`.edit-button[onclick^="toggleEdit(${index})"]`);
             const saveButton = document.getElementById(`saveButton${index}`);
             const cancelButton = document.getElementById(`cancelButton${index}`);
 
@@ -336,11 +364,9 @@
             }
         }
 
-        // Function to save an edited entry in local storage
-        function saveEntry(index) {
+        // Function to save an edited entry in Firestore
+        function saveEntry(index, docId) {
             console.log(`Saving edited entry at index ${index}...`);
-            let savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
-            const entry = savedData[index];
 
             // Get the new values from the input fields
             const newDate = document.getElementById(`editDate${index}`).value;
@@ -348,32 +374,35 @@
             const newMealCarbs = document.getElementById(`editMealCarbs${index}`).value;
             const newExerciseDuration = document.getElementById(`editExerciseDuration${index}`).value;
 
-            // Update the entry with new values
-            if (newDate) {
-                const dateValue = new Date(newDate);
-                entry.date = dateValue.toISOString(); // Store as ISO string
-            }
-            if (newInsulinDose) entry.insulinDose = newInsulinDose;
-            if (newMealCarbs) entry.mealCarbs = newMealCarbs;
-            if (newExerciseDuration) entry.exerciseDuration = newExerciseDuration;
-
-            // Save updated data back to local storage
-            savedData[index] = entry;
-            localStorage.setItem('diabetesData', JSON.stringify(savedData));
-
-            // Update the UI
-            loadHistory();
+            // Update the entry in Firestore
+            db.collection('diabetesData').doc(docId).update({
+                date: newDate || "N/A",
+                insulinDose: newInsulinDose || "N/A",
+                mealCarbs: newMealCarbs || "N/A",
+                exerciseDuration: newExerciseDuration || "N/A"
+            })
+            .then(() => {
+                console.log("Document successfully updated!");
+                loadHistory(); // Refresh the data
+            })
+            .catch((error) => {
+                console.error("Error updating document: ", error);
+                alert('An error occurred while updating the entry.');
+            });
         }
 
-        // Function to delete an entry from local storage
-        function deleteEntry(index) {
-            console.log(`Deleting entry at index ${index}...`);
-            let savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
-            savedData.splice(index, 1); // Remove the entry at the specified index
-            localStorage.setItem('diabetesData', JSON.stringify(savedData)); // Save the updated data back to local storage
-
-            // Update the UI
-            loadHistory();
+        // Function to delete an entry from Firestore
+        function deleteEntry(docId) {
+            console.log(`Deleting entry with ID ${docId}...`);
+            db.collection('diabetesData').doc(docId).delete()
+            .then(() => {
+                console.log("Document successfully deleted!");
+                loadHistory(); // Refresh the data
+            })
+            .catch((error) => {
+                console.error("Error deleting document: ", error);
+                alert('An error occurred while deleting the entry.');
+            });
         }
 
         // Function to update the total insulin on board based on time passed
@@ -431,11 +460,11 @@
             historyChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dates,
+                    labels: dates.reverse(),
                     datasets: [
                         {
                             label: 'Insulin Dose (units)',
-                            data: insulinDoses,
+                            data: insulinDoses.reverse(),
                             borderColor: 'rgba(75, 192, 192, 1)',
                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
                             fill: false,
@@ -467,25 +496,6 @@
 
         // Load history when the page is loaded
         window.onload = loadHistory;
-
-        // Sample data for testing purposes
-        // Uncomment this section to initialize sample data in localStorage for testing
-        /*
-        localStorage.setItem('diabetesData', JSON.stringify([
-            {
-                date: new Date(Date.now() - (3 * 60 * 60 * 1000)).toISOString(), // 3 hours ago
-                insulinDose: "4",
-                mealCarbs: "30",
-                exerciseDuration: "15"
-            },
-            {
-                date: new Date(Date.now() - (1 * 60 * 60 * 1000)).toISOString(), // 1 hour ago
-                insulinDose: "5",
-                mealCarbs: "50",
-                exerciseDuration: "20"
-            }
-        ]));
-        */
     </script>
 </body>
 </html>

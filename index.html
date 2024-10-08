@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Diabetes Management</title>
+    <!-- Include Firebase JS SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+    <!-- Include other Firebase products as needed -->
     <style>
+        /* [Your existing CSS styles here] */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0; /* Ensure consistency */
+            padding: 0;
         }
 
         h1 {
@@ -20,41 +25,37 @@
             position: fixed;
             top: 0;
             width: 100%;
-            background-color: white; /* White background */
+            background-color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 50px;
-            border-bottom: 1px solid lightgrey; /* Add grey underline */
+            border-bottom: 1px solid lightgrey;
             z-index: 1000;
         }
 
-        /* Add background box on hover */
         .navbar a {
             color: black;
             text-decoration: none;
             font-weight: bold;
             margin: 0 15px;
-            padding: 10px 15px; /* Add padding for box effect */
-            border-radius: 5px; /* Rounded corners for background box */
+            padding: 10px 15px;
+            border-radius: 5px;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Hover effect: background color and text color change */
         .navbar a:hover {
-            background-color: lightgrey; /* Box background on hover */
+            background-color: lightgrey;
             color: white;
         }
 
-        /* Highlight the active page (Tracker page) */
         .navbar a.active {
-            background-color: grey; /* Box background for active page */
+            background-color: grey;
             color: white;
         }
 
-        /* Padding to prevent content from going behind the navbar */
         .content {
-            padding-top: 70px; /* Adjusted to match across pages */
+            padding-top: 70px;
             padding-left: 20px;
             padding-right: 20px;
         }
@@ -180,6 +181,22 @@
     </div>
 
     <script>
+        // Include Firebase configuration and initialization
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnOPUB_2u93a9XyIa3ifLyc7Pq8gD0JzE",
+            authDomain: "kiwidiabetics.firebaseapp.com",
+            projectId: "kiwidiabetics",
+            storageBucket: "kiwidiabetics.appspot.com",
+            messagingSenderId: "590676523026",
+            appId: "1:590676523026:web:ac1dff738628b2202bc0cb",
+            measurementId: "G-KDCWBZQY08"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // Pre-fill current date and time with correct local time
         document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
@@ -197,39 +214,33 @@
             document.getElementById('exerciseDuration').value = duration;
         }
 
-        // Function to save the input data to local storage and clear the form
+        // Function to save the input data to Firestore and clear the form
         document.getElementById('saveDataBtn').addEventListener('click', function() {
-            const date = document.getElementById('date').value;
-            const insulinDose = document.getElementById('insulinDose').value || "N/A";  // If empty, store as "N/A"
+            const date = document.getElementById('date').value || "N/A";
+            const insulinDose = document.getElementById('insulinDose').value || "N/A";
             const mealCarbs = document.getElementById('mealCarbs').value || "N/A";
             const exerciseDuration = document.getElementById('exerciseDuration').value || "N/A";
 
-            // Save the data if at least one field is filled
-            if (date || insulinDose !== "N/A" || mealCarbs !== "N/A" || exerciseDuration !== "N/A") {
-                const dataEntry = {
-                    date: date || "N/A",
-                    insulinDose,
-                    mealCarbs,
-                    exerciseDuration
-                };
+            // Create a data entry object
+            const dataEntry = {
+                date: date,
+                insulinDose: insulinDose,
+                mealCarbs: mealCarbs,
+                exerciseDuration: exerciseDuration,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
 
-                // Retrieve current data from local storage or initialize an empty array
-                const savedData = JSON.parse(localStorage.getItem('diabetesData')) || [];
-
-                // Add the new entry to the saved data
-                savedData.push(dataEntry);
-
-                // Store updated data back in local storage
-                localStorage.setItem('diabetesData', JSON.stringify(savedData));
-
-                // Clear the input fields after saving the data
+            // Save the data entry to Firestore
+            db.collection('diabetesData').add(dataEntry)
+            .then((docRef) => {
+                console.log("Document written with ID: ", docRef.id);
                 clearForm();
-
-                // Display confirmation message
                 document.getElementById('dataOutput').innerHTML = `<p>Data saved successfully!</p>`;
-            } else {
-                alert('Please enter at least one field.');
-            }
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+                alert('An error occurred while saving data.');
+            });
         });
 
         // Function to clear form fields
