@@ -27,10 +27,12 @@ auth.onAuthStateChanged((user) => {
         loginContainer.style.display = 'none';
         trackerContent.style.display = 'block'; // Show tracker after login
     } else {
+        console.log('No user signed in, showing login form');
         loginContainer.style.display = 'block';
         trackerContent.style.display = 'none'; // Show login form if not logged in
     }
 });
+
 
 // Handle login form submission
 const loginForm = document.getElementById('loginForm');
