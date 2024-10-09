@@ -27,6 +27,22 @@
             <button type="submit">Login</button>
         </form>
         <div id="error-message" style="color: red;"></div>
+        <p>Don't have an account? <a href="#" id="toggleSignUp">Sign up here</a></p>
+
+        <!-- Sign-Up Form (Initially Hidden) -->
+        <div id="signUpForm" style="display: none;">
+            <h1>Sign Up</h1>
+            <form id="signUp">
+                <label for="signUpEmail">Email:</label>
+                <input type="email" id="signUpEmail" required>
+
+                <label for="signUpPassword">Password:</label>
+                <input type="password" id="signUpPassword" required>
+
+                <button type="submit">Sign Up</button>
+            </form>
+            <div id="signUpError" style="color: red;"></div>
+        </div>
     </div>
 
     <!-- Main content for the tracker with padding to prevent overlap with the navbar -->
