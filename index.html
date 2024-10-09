@@ -83,16 +83,24 @@
             </div>
             
             <script>
-                // Prepopulate the datetime input with the current date and time
+                // Prepopulate the datetime input with the current local date and time
                 document.addEventListener("DOMContentLoaded", function() {
                     const dateInput = document.getElementById("date");
                     const now = new Date();
-                    // Format the date to match the datetime-local format (YYYY-MM-DDTHH:MM)
-                    const formattedDate = now.toISOString().slice(0, 16);
+                    
+                    // Get local date and time parts
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    
+                    // Format to match datetime-local format (YYYY-MM-DDTHH:MM)
+                    const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+                    
                     dateInput.value = formattedDate;
                 });
-            </script>
-            
+            </script>          
             <!-- Date and Time Input (End) -->
 
             <!-- Insulin Dose Input with Quick Options (Start) -->
