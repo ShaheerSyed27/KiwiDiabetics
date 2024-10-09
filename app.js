@@ -16,7 +16,43 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Sign in anonymously
+// Selectors for the login form and tracker content
+const loginContainer = document.getElementById('loginContainer');
+const trackerContent = document.getElementById('trackerContent');
+
+// Check if a user is already signed in
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log('User is signed in:', user);
+        loginContainer.style.display = 'none';
+        trackerContent.style.display = 'block'; // Show tracker after login
+    } else {
+        loginContainer.style.display = 'block';
+        trackerContent.style.display = 'none'; // Show login form if not logged in
+    }
+});
+
+// Handle login form submission
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Signed in
+            console.log('User signed in:', userCredential.user);
+            loginContainer.style.display = 'none';
+            trackerContent.style.display = 'block'; // Show tracker after login
+        })
+        .catch((error) => {
+            document.getElementById('error-message').innerText = error.message;
+        });
+});
+
+/*// Sign in anonymously
 auth.signInAnonymously()
     .then(() => {
         console.log('Signed in anonymously');
@@ -27,6 +63,8 @@ auth.signInAnonymously()
     .catch((error) => {
         console.error('Error signing in anonymously:', error);
     });
+*/
+
 
 // Setup data saving for index.html
 function setupDataSaving() {

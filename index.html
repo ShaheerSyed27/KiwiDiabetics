@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="/manifest.json">
-
 </head>
 <body>
     <!-- Fixed Navigation Bar -->
@@ -15,8 +14,23 @@
         <a href="history.html">History</a>
     </div>
 
-    <!-- Main content with padding to prevent overlap with the navbar -->
-    <div class="content">
+    <!-- Login Form -->
+    <div class="login-container" id="loginContainer" style="display: none;">
+        <h1>Login</h1>
+        <form id="loginForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <div id="error-message" style="color: red;"></div>
+    </div>
+
+    <!-- Main content for the tracker with padding to prevent overlap with the navbar -->
+    <div class="content" id="trackerContent" style="display: none;">
         <h1>Diabetes Management Tracker</h1>
 
         <div class="form-container">
@@ -70,7 +84,5 @@
             });
         }
     </script>
-    
-
 </body>
 </html>
