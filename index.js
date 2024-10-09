@@ -1,17 +1,19 @@
 // Firebase configuration and initialization
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
+    apiKey: "AIzaSyDnOPUB_2u93a9XyIa3ifLyc7Pq8gD0JzE",
+    authDomain: "kiwidiabetics.firebaseapp.com",
+    projectId: "kiwidiabetics",
+    storageBucket: "kiwidiabetics.appspot.com",
+    messagingSenderId: "590676523026",
+    appId: "1:590676523026:web:ac1dff738628b2202bc0cb",
+    measurementId: "G-KDCWBZQY08"
+  };
 
 // Initialize Firebase using the global Firebase object
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+const analytics = getAnalytics(app);
 
 // Toggle between login and sign-up forms
 document.getElementById('toggleSignUp').addEventListener('click', function() {
