@@ -79,13 +79,30 @@ signUpForm.addEventListener('submit', (e) => {
 auth.onAuthStateChanged((user) => {
     const loginContainer = document.getElementById('loginContainer');
     const trackerContent = document.getElementById('trackerContent');
+    const signOutTab = document.getElementById('signOutTab'); // Get the Sign Out tab
+
     if (user) {
         loginContainer.style.display = 'none';
-        trackerContent.style.display = 'block'; // Show tracker after login
+        trackerContent.style.display = 'block';
+        signOutTab.style.display = 'inline'; // Show the Sign Out tab when logged in
     } else {
         loginContainer.style.display = 'block';
-        trackerContent.style.display = 'none'; // Show login form if not logged in
+        trackerContent.style.display = 'none';
+        signOutTab.style.display = 'none'; // Hide the Sign Out tab when not logged in
     }
+});
+
+// Handle user sign-out functionality
+document.getElementById("signOutTab").addEventListener("click", () => {
+    auth.signOut().then(() => {
+        alert("You have successfully signed out.");
+        // Toggle UI elements
+        document.getElementById("loginContainer").style.display = "block";
+        document.getElementById("trackerContent").style.display = "none";
+        document.getElementById("signOutTab").style.display = "none";
+    }).catch((error) => {
+        console.error("Error signing out: ", error);
+    });
 });
 // Check if a user is already signed in (End)
 
