@@ -78,26 +78,21 @@
 
             <!-- Date and Time Input (Start) -->
             <div class="form-section">
-                <label for="dateTimePicker">Date and Time</label>
-                <input type="datetime-local" id="dateTimePicker" name="dateTimePicker">
-                <div class="quick-options">
-                    <button type="button" onclick="setDateTimeNow()">Now</button>
-                    <button type="button" onclick="setDateTimeYesterday()">Yesterday</button>
-                </div>
+                <label for="date">Date and Time</label>
+                <input type="datetime-local" id="date" name="date">
             </div>
             
             <script>
-                function setDateTimeNow() {
+                // Prepopulate the datetime input with the current date and time
+                document.addEventListener("DOMContentLoaded", function() {
+                    const dateInput = document.getElementById("date");
                     const now = new Date();
-                    document.getElementById("dateTimePicker").value = now.toISOString().slice(0, 16);
-                }
+                    // Format the date to match the datetime-local format (YYYY-MM-DDTHH:MM)
+                    const formattedDate = now.toISOString().slice(0, 16);
+                    dateInput.value = formattedDate;
+                });
+            </script>
             
-                function setDateTimeYesterday() {
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    document.getElementById("dateTimePicker").value = yesterday.toISOString().slice(0, 16);
-                }
-            </script>            
             <!-- Date and Time Input (End) -->
 
             <!-- Insulin Dose Input with Quick Options (Start) -->
