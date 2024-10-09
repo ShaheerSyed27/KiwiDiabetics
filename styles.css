@@ -177,6 +177,11 @@ button:hover {
     background-color: #d35400;
 }
 
+#signOutTab {
+    display: inline; /* Ensures the tab is visible */
+    color: #ffffff; /* Matches other links */
+}
+
 /* History Page Specific Styling */
 
 /* Center and Resize Chart */
