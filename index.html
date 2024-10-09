@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta information about the webpage (Start) -->
     <meta charset="UTF-8">
     <title>Kiwi Diabetics Pro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Link to the stylesheet -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Link to the PWA manifest file -->
     <link rel="manifest" href="/manifest.json">
+    <!-- Meta information about the webpage (End) -->
 </head>
 <body>
-    <!-- Fixed Navigation Bar -->
+
+    <!-- Fixed Navigation Bar (Start) -->
     <div class="navbar">
+        <!-- Navigation links for Tracker and History -->
         <a href="index.html" class="active">Tracker</a>
         <a href="history.html">History</a>
     </div>
+    <!-- Fixed Navigation Bar (End) -->
 
-    <!-- Login Form -->
+    <!-- Login Section (Start) -->
     <div class="login-container" id="loginContainer" style="display: none;">
         <h1>Login</h1>
+        <!-- Login Form (Start) -->
         <form id="loginForm">
             <label for="email">Email:</label>
             <input type="email" id="email" required>
@@ -26,12 +36,17 @@
 
             <button type="submit">Login</button>
         </form>
+        <!-- Login Form (End) -->
+
+        <!-- Display error messages during login -->
         <div id="error-message" style="color: red;"></div>
+
         <p>Don't have an account? <a href="#" id="toggleSignUp">Sign up here</a></p>
 
-        <!-- Sign-Up Form (Initially Hidden) -->
+        <!-- Sign-Up Form (Initially Hidden) (Start) -->
         <div id="signUpForm" style="display: none;">
             <h1>Sign Up</h1>
+            <!-- Sign-Up Form (Start) -->
             <form id="signUp">
                 <label for="signUpEmail">Email:</label>
                 <input type="email" id="signUpEmail" required>
@@ -41,20 +56,30 @@
 
                 <button type="submit">Sign Up</button>
             </form>
+            <!-- Sign-Up Form (End) -->
+
+            <!-- Display error messages during sign-up -->
             <div id="signUpError" style="color: red;"></div>
         </div>
+        <!-- Sign-Up Form (Initially Hidden) (End) -->
     </div>
+    <!-- Login Section (End) -->
 
-    <!-- Main content for the tracker with padding to prevent overlap with the navbar -->
+    <!-- Main Tracker Section (Start) -->
     <div class="content" id="trackerContent" style="display: none;">
         <h1>Diabetes Management Tracker</h1>
 
+        <!-- Form for tracking various inputs (insulin, carbs, exercise) (Start) -->
         <div class="form-container">
+
+            <!-- Date and Time Input (Start) -->
             <div class="form-section">
                 <label for="date">Date and Time</label>
                 <input type="datetime-local" id="date" name="date">
             </div>
+            <!-- Date and Time Input (End) -->
 
+            <!-- Insulin Dose Input with Quick Options (Start) -->
             <div class="form-section">
                 <label for="insulinDose">Insulin Dose (units)</label>
                 <input type="number" id="insulinDose" name="insulinDose" min="0" placeholder="Enter insulin dose in units">
@@ -63,12 +88,16 @@
                     <button onclick="setInsulinDose(10)">10 units</button>
                 </div>
             </div>
+            <!-- Insulin Dose Input with Quick Options (End) -->
 
+            <!-- Meal Carbs Input (Start) -->
             <div class="form-section">
                 <label for="mealCarbs">Meal Carbs (grams)</label>
                 <input type="number" id="mealCarbs" name="mealCarbs" min="0" placeholder="Enter carbs consumed in grams">
             </div>
+            <!-- Meal Carbs Input (End) -->
 
+            <!-- Exercise Duration Input with Quick Options (Start) -->
             <div class="form-section">
                 <label for="exerciseDuration">Exercise Duration (minutes)</label>
                 <input type="number" id="exerciseDuration" name="exerciseDuration" min="0" placeholder="Enter exercise duration in minutes">
@@ -77,17 +106,23 @@
                     <button onclick="setExerciseDuration(60)">1 hour</button>
                 </div>
             </div>
+            <!-- Exercise Duration Input with Quick Options (End) -->
 
+            <!-- Button to Save Data -->
             <button id="saveDataBtn">Save Data</button>
 
+            <!-- Display output of the saved data -->
             <div class="data-output" id="dataOutput"></div>
         </div>
+        <!-- Form for tracking various inputs (insulin, carbs, exercise) (End) -->
     </div>
+    <!-- Main Tracker Section (End) -->
 
-    <!-- Include Firebase App and Your Script -->
+    <!-- Firebase and Custom Script Includes (Start) -->
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="index.js" defer></script>
+    <!-- Firebase and Custom Script Includes (End) -->
 </body>
 </html>

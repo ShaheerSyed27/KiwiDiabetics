@@ -1,42 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Head Section (Start) -->
     <meta charset="UTF-8">
     <title>Analysis</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <!-- Include Moment.js, Chart.js, and the adapter -->
+    
+    <!-- Include Moment.js, Chart.js, and the adapter (Start) -->
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+    <!-- Include Moment.js, Chart.js, and the adapter (End) -->
+    <!-- Head Section (End) -->
 </head>
 <body>
-    <!-- Fixed Navigation Bar -->
+    <!-- Fixed Navigation Bar (Start) -->
     <div class="navbar">
         <a href="index.html">Tracker</a>
         <a href="history.html" class="active">History</a>
     </div>
+    <!-- Fixed Navigation Bar (End) -->
 
-    <!-- Main content with padding to prevent overlap with the navbar -->
+    <!-- Main Content Section (Start) -->
     <div class="content">
         <h1>History of Entries</h1>
 
+        <!-- Chart Container (Start) -->
         <div id="chart-container">
             <canvas id="historyChart"></canvas>
         </div>
+        <!-- Chart Container (End) -->
 
+        <!-- Insulin on Board Display (Start) -->
         <div id="insulin-on-board">
             Total Insulin on Board: <span id="totalInsulin">0</span> units
         </div>
+        <!-- Insulin on Board Display (End) -->
 
+        <!-- History Container (Start) -->
         <div class="history-container" id="historyContainer">
             <!-- Entries will be displayed here -->
         </div>
+        <!-- History Container (End) -->
     </div>
+    <!-- Main Content Section (End) -->
 
-    <!-- Include Firebase App and Your Script -->
+    <!-- Firebase and Custom Script Includes (Start) -->
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
     <script src="history.js" defer></script>
+    <!-- Firebase and Custom Script Includes (End) -->
 </body>
 </html>
