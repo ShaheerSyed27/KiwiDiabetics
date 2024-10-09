@@ -35,6 +35,7 @@ self.addEventListener('activate', event => {
             );
         })
     );
+    self.clients.claim();  // Claim any clients immediately
 });
 
 // Fetch assets from the cache if available, otherwise fetch from the network
@@ -52,9 +53,23 @@ self.addEventListener('updatefound', () => {
     newWorker.onstatechange = () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             // Notify the user about the update
-            if (confirm('New version available. Would you like to update?')) {
-                window.location.reload();  // Reload the page to update
-            }
+            self.clients.matchAll().then(clients => {
+                if (clients && clients.length) {
+                    clients.forEach(client => {
+                        client.postMessage({
+                            type: 'NEW_VERSION',
+                            message: 'New version available. Reload to update.',
+                        });
+                    });
+                }
+            });
         }
     };
+});
+
+// Listen for messages from the client
+self.addEventListener('message', event => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
