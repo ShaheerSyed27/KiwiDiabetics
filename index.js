@@ -13,7 +13,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-const analytics = getAnalytics(app);
+
+
 // Initialize Firebase using the global Firebase object (End)
 // Firebase configuration and initialization (End)
 
