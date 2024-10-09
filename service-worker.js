@@ -10,9 +10,9 @@ const assetsToCache = [
     '/images/icons/icon-512x512.png'
 ];
 
-
 // Install the service worker and cache all required assets
 self.addEventListener('install', event => {
+    self.skipWaiting();  // Forces the waiting service worker to activate immediately
     event.waitUntil(
         caches.open(cacheName).then(cache => {
             console.log('Caching all assets');
@@ -21,16 +21,7 @@ self.addEventListener('install', event => {
     );
 });
 
-// Fetch assets from the cache if available, otherwise fetch from the network
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
-});
-
-// Update service worker and remove old caches
+// Activate the service worker and remove old caches
 self.addEventListener('activate', event => {
     const cacheWhitelist = [cacheName];
     event.waitUntil(
@@ -44,4 +35,26 @@ self.addEventListener('activate', event => {
             );
         })
     );
+});
+
+// Fetch assets from the cache if available, otherwise fetch from the network
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request);
+        })
+    );
+});
+
+// Listen for updates and notify users
+self.addEventListener('updatefound', () => {
+    const newWorker = self.installing;
+    newWorker.onstatechange = () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // Notify the user about the update
+            if (confirm('New version available. Would you like to update?')) {
+                window.location.reload();  // Reload the page to update
+            }
+        }
+    };
 });
